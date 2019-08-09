@@ -98,6 +98,10 @@ thread_init (void)
   init_thread (initial_thread, "main", PRI_DEFAULT);
   initial_thread->status = THREAD_RUNNING;
   initial_thread->tid = allocate_tid ();
+
+  printf("thread_tid: %d\n", initial_thread->tid); // Debug
+  printf("thread_status: %d\n", initial_thread->status); // Debug
+  printf("thread_priority: %d\n", initial_thread->priority); // Debug
 }
 
 /* Starts preemptive thread scheduling by enabling interrupts.
