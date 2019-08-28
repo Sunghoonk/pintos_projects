@@ -24,6 +24,9 @@
    that are ready to run but not actually running. */
 static struct list ready_list;
 
+// proj_1 
+static struct list sleep_list;
+
 /* List of all processes.  Processes are added to this list
    when they are first scheduled and removed when they exit. */
 static struct list all_list;
@@ -92,6 +95,7 @@ thread_init (void)
   lock_init (&tid_lock);
   list_init (&ready_list);
   list_init (&all_list);
+  list_init (&sleep_list); // proj_1 initiate sleep_list
 
   /* Set up a thread structure for the running thread. */
   initial_thread = running_thread ();
@@ -589,3 +593,38 @@ allocate_tid (void)
 /* Offset of `stack' member within `struct thread'.
    Used by switch.S, which can't figure it out on its own. */
 uint32_t thread_stack_ofs = offsetof (struct thread, stack);
+
+// proj_1
+void thread_get_sleep(int64_t time_to_wake){
+		
+	// disable interrupt because it is essential before block
+	enum intr_level old_level;
+	old_level = intr_disable();
+
+	// check whether this thread is idle
+	struct thread * t = thread_current();
+
+	if(t->tid == 1) // idle's tid is 1
+		return;
+
+	//store ticks_to_wake in thread struct
+	t->ticks_to_wake = time_to_wake;	
+
+	// push the thread to sleep_list and sorting
+	set_sleep_list(&t->elem);	
+	
+	thread_block();
+
+	intr_set_level(old_level);
+}
+
+void set_sleep_list(struct list_elem * elem){
+	list_push_front(&sleep_list, elem);
+	list_sort (&sleep_list, less_ticks_to_wake, NULL); 	
+}
+
+bool less_ticks_to_wake(const struct list_elem * _a, const struct list_elem * _b, void* aux UNUSED){
+	const struct thread *a = list_entry(_a, struct thread, elem);
+	const struct thread *b = list_entry(_b, struct thread, elem);
+	return a->ticks_to_wake < b->ticks_to_wake;
+}

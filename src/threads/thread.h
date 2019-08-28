@@ -100,6 +100,9 @@ struct thread
 
     /* Owned by thread.c. */
     unsigned magic;                     /* Detects stack overflow. */
+
+	// proj_1 
+	int64_t ticks_to_wake; // time to wake up
   };
 
 /* If false (default), use round-robin scheduler.
@@ -137,5 +140,10 @@ int thread_get_nice (void);
 void thread_set_nice (int);
 int thread_get_recent_cpu (void);
 int thread_get_load_avg (void);
+
+void thread_get_sleep(int64_t time_to_wake); // proj_1
+void set_sleep_list(struct list_elem * elem);
+bool less_ticks_to_wake(const struct list_elem * _a, 
+							   const struct list_elem * _b, void* aux UNUSED);
 
 #endif /* threads/thread.h */
